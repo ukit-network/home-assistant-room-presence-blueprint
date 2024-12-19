@@ -1,9 +1,9 @@
 blueprint:
-  name: Room Presence Sensor Combiner (Configurable States)
+  name: Room Presence Sensor Combiner
   description: >
     Combine multiple presence sensors into a single virtual room sensor.
-    Allows specifying custom states or thresholds for each sensor directly 
-    in the blueprint configuration.
+    When any sensor indicates presence, the room is considered occupied.
+    When all sensors are inactive, the room is considered unoccupied.
   domain: automation
   input:
     room_name:
@@ -17,16 +17,6 @@ blueprint:
         entity:
           domain: binary_sensor
           multiple: true
-    sensor_conditions:
-      name: Sensor Conditions
-      description: >
-        List of states or thresholds for each presence sensor. 
-        Enter a corresponding condition for each sensor (e.g., `on`, `open`, `> 20`).
-        Each condition must be on a new line, and the number of conditions must match the number of sensors.
-      default: ''
-      selector:
-        text:
-          multiline: true
     virtual_sensor:
       name: Virtual Room Sensor
       description: Input boolean to represent the room presence state.
@@ -43,18 +33,12 @@ action:
       - conditions:
           - condition: template
             value_template: >
-              {%- set sensors = namespace(presence=False) -%}
-              {%- set sensor_list = (blueprint.inputs.presence_sensors | list) -%}
-              {%- set condition_list = blueprint.inputs.sensor_conditions.splitlines() -%}
-              {%- for i in range(sensor_list | length) -%}
-                {%- set sensor = sensor_list[i] -%}
-                {%- set condition = condition_list[i] -%}
-                {%- if states(sensor) == condition or 
-                      (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
-                  {%- set sensors.presence = True -%}
-                {%- endif -%}
-              {%- endfor -%}
-              {{ sensors.presence }}
+              {% for sensor in states | selectattr('entity_id', 'in', (blueprint.inputs.presence_sensors | list)) %}
+                {% if sensor.state == 'on' %}
+                  {{ true }}
+                {% endif %}
+              {% endfor %}
+              {{ false }}
         sequence:
           - service: input_boolean.turn_on
             target:
@@ -62,18 +46,12 @@ action:
       - conditions:
           - condition: template
             value_template: >
-              {%- set sensors = namespace(presence=False) -%}
-              {%- set sensor_list = (blueprint.inputs.presence_sensors | list) -%}
-              {%- set condition_list = blueprint.inputs.sensor_conditions.splitlines() -%}
-              {%- for i in range(sensor_list | length) -%}
-                {%- set sensor = sensor_list[i] -%}
-                {%- set condition = condition_list[i] -%}
-                {%- if states(sensor) == condition or 
-                      (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
-                  {%- set sensors.presence = True -%}
-                {%- endif -%}
-              {%- endfor -%}
-              {{ not sensors.presence }}
+              {% for sensor in states | selectattr('entity_id', 'in', (blueprint.inputs.presence_sensors | list)) %}
+                {% if sensor.state == 'on' %}
+                  {{ false }}
+                {% endif %}
+              {% endfor %}
+              {{ true }}
         sequence:
           - service: input_boolean.turn_off
             target:
