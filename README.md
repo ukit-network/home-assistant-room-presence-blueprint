@@ -2,7 +2,7 @@
 
 This blueprint combines multiple presence sensors into a single virtual room presence sensor. If any sensor detects presence, the room is set to "occupied." When all sensors are inactive, the room is set to "unoccupied." You can also define custom states or thresholds for each sensor directly from the blueprint configuration page.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with this blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?url=https://github.com/ukit-network/home-assistant-room-presence-blueprint/blob/main/room_presence_combiner_configurable.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fukit-network%2Fhome-assistant-room-presence-blueprint.git)
 
 ---
 
