@@ -8,11 +8,11 @@ blueprint:
   input:
     room_name:
       name: Room Name
-      description: Name of the room to represent in the virtual sensor
+      description: Name of the room to represent in the virtual sensor.
       default: 'Room'
     presence_sensors:
       name: Presence Sensors
-      description: List of presence sensors to monitor
+      description: List of presence sensors to monitor.
       selector:
         entity:
           domain: binary_sensor
@@ -23,13 +23,13 @@ blueprint:
         List of states or thresholds for each presence sensor. 
         Enter a corresponding condition for each sensor (e.g., `on`, `open`, `> 20`).
         Ensure the number of conditions matches the number of sensors.
-      default: []
+      default: ''
       selector:
         text:
           multiline: true
     virtual_sensor:
       name: Virtual Room Sensor
-      description: Input boolean to represent the room presence state
+      description: Input boolean to represent the room presence state.
       selector:
         entity:
           domain: input_boolean
