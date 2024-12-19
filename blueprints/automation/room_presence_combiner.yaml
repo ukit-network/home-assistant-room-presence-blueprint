@@ -1,35 +1,35 @@
 blueprint:
-  name: Room Presence Sensor Combiner (Custom States/Values)
+  name: Room Presence Sensor Combiner (Configurable States)
   description: >
-    Combine multiple presence sensors into a single virtual room sensor. 
-    Allows configuration of specific states or attribute values for each sensor. 
-    The room is set to "occupied" if any sensor meets its specified condition. 
-    If none meet the condition, the room is set to "unoccupied."
+    Combine multiple presence sensors into a single virtual room sensor.
+    Allows specifying custom states or thresholds for each sensor directly 
+    in the blueprint configuration.
   domain: automation
   input:
     room_name:
       name: Room Name
       description: Name of the room to represent in the virtual sensor
-      default: "Room"
+      default: 'Room'
     presence_sensors:
       name: Presence Sensors
-      description: List of sensors to monitor for presence
+      description: List of presence sensors to monitor
       selector:
         entity:
           domain: binary_sensor
           multiple: true
-    sensor_states:
-      name: Sensor States
+    sensor_conditions:
+      name: Sensor Conditions
       description: >
-        List of states/conditions to trigger presence for each sensor.
-        For example: ['on', 'detected', 'active'] or threshold values.
+        List of states or thresholds for each presence sensor. 
+        Enter a corresponding condition for each sensor (e.g., `on`, `open`, `> 20`).
+        Ensure the number of conditions matches the number of sensors.
       default: []
       selector:
-        object:
-          multiple: true
+        text:
+          multiline: true
     virtual_sensor:
       name: Virtual Room Sensor
-      description: Input boolean to represent room presence state
+      description: Input boolean to represent the room presence state
       selector:
         entity:
           domain: input_boolean
@@ -46,8 +46,8 @@ action:
           - condition: template
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
-              {%- for sensor, state in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_states)) -%}
-                {%- if states(sensor) == state -%}
+              {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
+                {%- if states(sensor) == condition or states(sensor) | float(0) > (condition | float(0)) -%}
                   {%- set sensors.presence = True -%}
                 {%- endif -%}
               {%- endfor -%}
@@ -60,8 +60,8 @@ action:
           - condition: template
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
-              {%- for sensor, state in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_states)) -%}
-                {%- if states(sensor) == state -%}
+              {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
+                {%- if states(sensor) == condition or states(sensor) | float(0) > (condition | float(0)) -%}
                   {%- set sensors.presence = True -%}
                 {%- endif -%}
               {%- endfor -%}
