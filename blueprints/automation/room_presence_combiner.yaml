@@ -47,7 +47,8 @@ action:
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
               {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
-                {%- if states(sensor) == condition or states(sensor) | float(0) > (condition | float(0)) -%}
+                {%- if states(sensor) == condition or 
+                      (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
                   {%- set sensors.presence = True -%}
                 {%- endif -%}
               {%- endfor -%}
@@ -61,7 +62,8 @@ action:
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
               {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
-                {%- if states(sensor) == condition or states(sensor) | float(0) > (condition | float(0)) -%}
+                {%- if states(sensor) == condition or 
+                      (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
                   {%- set sensors.presence = True -%}
                 {%- endif -%}
               {%- endfor -%}
