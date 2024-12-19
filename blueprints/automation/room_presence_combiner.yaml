@@ -22,7 +22,7 @@ blueprint:
       description: >
         List of states or thresholds for each presence sensor. 
         Enter a corresponding condition for each sensor (e.g., `on`, `open`, `> 20`).
-        Ensure the number of conditions matches the number of sensors.
+        Each condition must be on a new line, and the number of conditions must match the number of sensors.
       default: ''
       selector:
         text:
@@ -38,15 +38,17 @@ trigger:
   - platform: state
     entity_id: !input presence_sensors
 
-condition: []
-
 action:
   - choose:
       - conditions:
           - condition: template
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
-              {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
+              {%- set sensor_list = (blueprint.inputs.presence_sensors | list) -%}
+              {%- set condition_list = blueprint.inputs.sensor_conditions.splitlines() -%}
+              {%- for i in range(sensor_list | length) -%}
+                {%- set sensor = sensor_list[i] -%}
+                {%- set condition = condition_list[i] -%}
                 {%- if states(sensor) == condition or 
                       (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
                   {%- set sensors.presence = True -%}
@@ -61,7 +63,11 @@ action:
           - condition: template
             value_template: >
               {%- set sensors = namespace(presence=False) -%}
-              {%- for sensor, condition in (blueprint.inputs.presence_sensors | zip(blueprint.inputs.sensor_conditions.splitlines())) -%}
+              {%- set sensor_list = (blueprint.inputs.presence_sensors | list) -%}
+              {%- set condition_list = blueprint.inputs.sensor_conditions.splitlines() -%}
+              {%- for i in range(sensor_list | length) -%}
+                {%- set sensor = sensor_list[i] -%}
+                {%- set condition = condition_list[i] -%}
                 {%- if states(sensor) == condition or 
                       (states(sensor) | float(0) > (condition | float(0)) if condition.isdigit() else False) -%}
                   {%- set sensors.presence = True -%}
